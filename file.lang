@@ -1,11 +1,17 @@
-let q = 0;
-q = q + 1;
-print(q);
-
-fn my_func(x) { // Comment 1
-    res = 2*x;
-    return res;
+let fibonacci = fn(x) {
+  if (x == 0) {
+    0
+  } else {
+    if (x == 1) {
+      return 1;
+    } else {
+      fibonacci(x - 1) + fibonacci(x - 2);
+    }
+  }
 };
-// Comment 2
-q = my_func(10); // Comment 2
-print(q);
+
+let i = 10;
+let b = fibonacci(10);
+
+puts(b);
+

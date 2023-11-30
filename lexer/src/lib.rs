@@ -1,121 +1,129 @@
 use std::fmt::{Display, Formatter};
 
 pub enum Token {
-    NewLine,
-    WhiteSpace,
-    Alphabet(String),
-    Int(u8),
-    AddOperator,
-    MinusOperator,
-    StarOperator,
-    FullStop,
-    SemiColon,
-    Colon,
+    Illegal,
+    Eof,
+
+    // Ident + Literals
+    Ident(String),
+    Int(i32),
+
+    // Operators
+    Assign,
+    Plus,
+
+    // Delimiters
     Comma,
-    LeftBracket,
-    RightBracket,
-    LeftCurlyBracket,
-    RightCurlyBracket,
-    LeftSquareBracket,
-    RightSquareBracket,
-    Unknown,
+    Semicolon,
+
+    LParen,
+    RParen,
+    LBrace,
+    RBrace,
+
+    // Keywords
+    Function,
+    Let,
 }
 
 impl Display for Token {
     fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
         match self {
-            Token::NewLine => write!(f, "Token::NewLine"),
-            Token::WhiteSpace => write!(f, "Token::WhiteSpace"),
-            Token::Alphabet(s) => write!(f, "Token::Alphabet({s})"),
+            Token::Illegal => write!(f, "Token::Illegal"),
+            Token::Eof => write!(f, "Token::Eof"),
+            Token::Ident(s) => write!(f, "Token::Ident({s})"),
             Token::Int(i) => write!(f, "Token::Int({i})"),
-            Token::AddOperator => write!(f, "Token::AddOperator"),
-            Token::MinusOperator => write!(f, "Token::MinusOperator"),
-            Token::StarOperator => write!(f, "Token::StarOperator"),
-            Token::FullStop => write!(f, "Token::FullStop"),
-            Token::SemiColon => write!(f, "Token::SemiColon"),
-            Token::Colon => write!(f, "Token::Colon"),
+            Token::Assign => write!(f, "Token::Assign"),
+            Token::Plus => write!(f, "Token::Plus"),
             Token::Comma => write!(f, "Token::Comma"),
-            Token::LeftBracket => write!(f, "Token::LeftBracket"),
-            Token::RightBracket => write!(f, "Token::RightBracket"),
-            Token::LeftCurlyBracket => write!(f, "Token::LeftCurlyBracket"),
-            Token::RightCurlyBracket => write!(f, "Token::RightCurlyBracket"),
-            Token::LeftSquareBracket => write!(f, "Token::LeftCurlyBracket"),
-            Token::RightSquareBracket => write!(f, "Token::RightCurlyBracket"),
-            Token::Unknown => write!(f, "Token::Unknown"),
+            Token::Semicolon => write!(f, "Token::Semicolon"),
+            Token::LParen => write!(f, "Token::LParen"),
+            Token::RParen => write!(f, "Token::RParen"),
+            Token::LBrace => write!(f, "Token::LBrace"),
+            Token::RBrace => write!(f, "Token::RBrace"),
+            Token::Function => write!(f, "Token::Function"),
+            Token::Let => write!(f, "Token::Let"),
         }
     }
 }
 
 pub struct Lexer {
-    input: String,
+    pub input: Vec<u8>,
+    pub pos: usize,
+    pub read_pos: usize,
+    pub ch: Option<u8>,
 }
 
 impl Lexer {
-    pub fn new(input: String) -> Lexer {
-        Lexer { input }
-    }
-
-    fn preprocess(&self, lines: Vec<String>) -> String {
-        let mut preprocessed_lines = vec![];
-        for line in lines {
-            if line == "" {
-                continue;
-            }
-            let out = line.split("//").collect::<Vec<&str>>();
-
-            preprocessed_lines.push(out.first().unwrap().to_string());
-        }
-        let preprocessed_string = preprocessed_lines.into_iter().collect::<String>();
-        preprocessed_string
-    }
-
-    fn parse(&self, s: String) -> Vec<Token> {
-        let mut tokens: Vec<Token> = Vec::new();
-        for c in s.chars() {
-            let token = Lexer::get_token(c);
-            tokens.push(token);
-        }
-        tokens
-    }
-
-    fn get_token(c: char) -> Token {
-        return match c {
-            '\n' => Token::NewLine,
-            ' ' => Token::WhiteSpace,
-            'a'..='z' | 'A'..='Z' => Token::Alphabet(c.to_string()),
-            '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => Token::Int((c as u8) - 48),
-            '+' => Token::AddOperator,
-            '-' => Token::MinusOperator,
-            '*' => Token::StarOperator,
-            '.' => Token::FullStop,
-            ';' => Token::SemiColon,
-            ':' => Token::Colon,
-            ',' => Token::Comma,
-            '(' => Token::MinusOperator,
-            ')' => Token::MinusOperator,
-            '{' => Token::MinusOperator,
-            '}' => Token::MinusOperator,
-            '[' => Token::LeftSquareBracket,
-            ']' => Token::RightCurlyBracket,
-            _ => Token::Unknown,
+    pub fn new(input: Vec<u8>) -> Lexer {
+        let mut lexer = Lexer {
+            input,
+            pos: 0,
+            read_pos: 0,
+            ch: None,
         };
+        lexer.read_char();
+        lexer
+    }
+    pub fn next_token(&mut self) -> Token {
+        let ch = self.ch.expect("Error: ch is None");
+        let token = match ch {
+            b'a'..=b'z' | b'A'..=b'Z' => self.read_identifier(ch),
+            b'=' => Token::Assign,
+            b'+' => Token::Plus,
+            b',' => Token::Comma,
+            b';' => Token::Semicolon,
+            b'(' => Token::LParen,
+            b')' => Token::RParen,
+            b'{' => Token::LBrace,
+            b'}' => Token::RBrace,
+            0 => Token::Eof,
+            _ => Token::Illegal,
+        };
+        self.read_char();
+        token
     }
 
-    pub fn print_tokens(tokens: &Vec<Token>) {
-        for t in tokens {
-            print!("{} ", t);
+    pub fn get_keyword_token(s: &str) -> Option<Token> {
+        let token = match s {
+            "let" => Token::Let,
+            "fn" => Token::Function,
+            _ => return None,
+        };
+        Some(token)
+    }
+
+    pub fn read_identifier(&mut self, ch: u8) -> Token {
+        let mut ch = ch;
+        let mut us: Vec<u8> = vec![];
+        loop {
+            match ch {
+                b'a'..=b'z' | b'A'..=b'Z' | b'_' => {
+                    us.push(ch);
+                    self.read_char();
+                    ch = self.ch.expect("Missing ch");
+                }
+                _ => break,
+            }
         }
+        let s: String =
+            std::string::String::from_utf8(us).expect("Couldn't coerce identifier to utf8 String");
+
+        let token = match Lexer::get_keyword_token(&s) {
+            Some(x) => x,
+            _ => Token::Ident(s),
+        };
+        token
     }
 
-    pub fn run(&mut self) -> Vec<Token> {
-        let state = &self.input;
-        let lines: Vec<String> = state
-            .split("\n")
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect();
-        let preprocessed: String = self.preprocess(lines);
-        let tokens: Vec<Token> = self.parse(preprocessed);
-        tokens
+    pub fn read_char(&mut self) {
+        let read_pos = self.read_pos;
+        if read_pos >= self.input.len() {
+            self.ch = Some(0);
+        } else {
+            self.ch = Some(self.input[read_pos]);
+        }
+        self.pos = self.read_pos;
+        self.read_pos = read_pos + 1;
     }
 }
