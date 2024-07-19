@@ -1,4 +1,6 @@
 use std::fmt::{Display, Formatter};
+
+#[derive(Clone)]
 pub enum Token {
     Illegal,
     Eof,
@@ -61,8 +63,6 @@ impl Display for Token {
             Token::RBrace => write!(f, "Token::RBrace"),
             Token::LT => write!(f, "Token::LT"),
             Token::RT => write!(f, "Token::RT"),
-
-            // Keywords
             Token::Function => write!(f, "Token::Function"),
             Token::Let => write!(f, "Token::Let"),
             Token::True => write!(f, "Token::True"),
@@ -70,6 +70,50 @@ impl Display for Token {
             Token::If => write!(f, "Token::If"),
             Token::Else => write!(f, "Token::Else"),
             Token::Return => write!(f, "Token::Return"),
+        }
+    }
+}
+
+impl Token {
+    pub fn literal(&self) -> String {
+        match self {
+            Token::Ident(s) => s.to_string(),
+            Token::Int(i) => i.to_string(),
+            Token::Illegal => "Illegal".to_string(),
+            Token::Eof => "Eof".to_string(),
+            Token::Assign => "=".to_string(),
+            Token::Plus => "+".to_string(),
+            Token::Minus => "-".to_string(),
+            Token::Bang => "!".to_string(),
+            Token::Asterisk => "*".to_string(),
+            Token::Eq => "==".to_string(),
+            Token::NotEq => "!=".to_string(),
+            Token::Comma => ",".to_string(),
+            Token::Semicolon => ";".to_string(),
+            Token::Slash => "/".to_string(),
+            Token::LParen => "(".to_string(),
+            Token::RParen => ")".to_string(),
+            Token::LBrace => "{".to_string(),
+            Token::RBrace => "}".to_string(),
+            Token::LT => "<".to_string(),
+            Token::RT => ">".to_string(),
+            Token::Function => "fn".to_string(),
+            Token::True => "true".to_string(),
+            Token::False => "false".to_string(),
+            Token::If => "if".to_string(),
+            Token::Else => "else".to_string(),
+            Token::Return => "return".to_string(),
+            _ => self.to_string(),
+        }
+    }
+}
+
+impl PartialEq for Token {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Token::Ident(_), Token::Ident(_)) => true,
+            (Token::Int(_), Token::Int(_)) => true,
+            _ => std::mem::discriminant(self) == std::mem::discriminant(other),
         }
     }
 }
@@ -210,9 +254,9 @@ impl Lexer {
             Some(x) => x,
             _ => Token::Ident(s),
         };
+
         self.pos -= 1;
         self.read_pos -= 1;
-
         token
     }
 

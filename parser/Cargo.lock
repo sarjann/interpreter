@@ -12,3 +12,11 @@ dependencies = [
 [[package]]
 name = "lexer"
 version = "0.1.0"
+
+[[package]]
+name = "parser"
+version = "0.1.0"
+dependencies = [
+ "ast",
+ "lexer",
+]

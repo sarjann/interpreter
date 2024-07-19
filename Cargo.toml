@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 lexer = { path = "lexer" }
+parser = { path = "parser" }
 ast = { path = "ast" }
