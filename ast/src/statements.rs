@@ -1,10 +1,18 @@
 use crate::ast::{Expression, Node, Statement};
 use crate::expressions;
 use lexer::Token;
+use std::cmp::{Eq, Ordering, PartialEq, PartialOrd};
 
 // Program
+#[derive(Debug)]
 pub struct ProgramStatement {
     pub body: Vec<Box<dyn Statement>>,
+}
+
+impl PartialEq for ProgramStatement {
+    fn eq(&self, other: &Self) -> bool {
+        self.body == other.body
+    }
 }
 
 impl Node for ProgramStatement {
@@ -17,6 +25,7 @@ impl Statement for ProgramStatement {
 }
 
 // Let
+#[derive(Debug)]
 pub struct LetStatement {
     pub token: Token,
     pub name: expressions::IdentifierExpression,
@@ -38,6 +47,7 @@ impl Statement for LetStatement {
 }
 
 // Return
+#[derive(Debug)]
 pub struct ReturnStatement {
     pub token: Token,
     pub return_value: Box<dyn Expression>,
@@ -51,4 +61,3 @@ impl Node for ReturnStatement {
 impl Statement for ReturnStatement {
     fn statement_node(&self) {}
 }
-

@@ -2,6 +2,7 @@ use crate::ast::{Expression, Node};
 use lexer::Token;
 
 // Expression
+#[derive(Debug)]
 pub struct ExpressionNode {
     pub value: String,
 }
@@ -16,6 +17,7 @@ impl Expression for ExpressionNode {
 }
 
 // Identifier
+#[derive(Debug)]
 pub struct IdentifierExpression {
     pub token: Token,
 }

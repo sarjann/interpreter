@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Token {
     Illegal,
     Eof,
@@ -106,10 +106,7 @@ impl Token {
             _ => self.to_string(),
         }
     }
-}
-
-impl PartialEq for Token {
-    fn eq(&self, other: &Self) -> bool {
+    pub fn type_matches(&self, other: &Self) -> bool {
         match (self, other) {
             (Token::Ident(_), Token::Ident(_)) => true,
             (Token::Int(_), Token::Int(_)) => true,

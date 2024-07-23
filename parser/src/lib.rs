@@ -70,7 +70,7 @@ impl Parser {
     }
 
     fn expect_peek(&mut self, token: Token) -> bool {
-        if self.peek_token == token {
+        if token.type_matches(&self.peek_token) {
             self.next_token();
             return true;
         } else {
@@ -106,7 +106,7 @@ impl Parser {
 
         // TODO (recursive stuff)
 
-        if self.current_token != Token::Semicolon {
+        if !(Token::Semicolon.type_matches(&self.current_token)) {
             self.next_token();
         }
         return Some(Box::new(statement));
@@ -124,7 +124,7 @@ impl Parser {
             return_value,
         };
 
-        if self.current_token != Token::Semicolon {
+        if !(Token::Semicolon.type_matches(&self.current_token)) {
             self.next_token();
         }
         return Some(Box::new(statement));
