@@ -61,3 +61,19 @@ impl Node for ReturnStatement {
 impl Statement for ReturnStatement {
     fn statement_node(&self) {}
 }
+
+// Expression
+#[derive(Debug)]
+pub struct ExpressionStatement {
+    pub token: Token,
+    pub expression: Box<dyn Expression>,
+}
+
+impl Node for ExpressionStatement {
+    fn literal(&self) -> String {
+        return format!("{} : {}", self.token.literal(), self.expression.literal());
+    }
+}
+impl Statement for ExpressionStatement {
+    fn statement_node(&self) {}
+}
