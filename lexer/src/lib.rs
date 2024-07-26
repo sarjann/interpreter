@@ -1,13 +1,13 @@
 use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub enum Token {
+pub enum TokenType {
     Illegal,
     Eof,
 
     // Ident + Literals
-    Ident(String),
-    Int(i32),
+    Ident,
+    Int,
 
     // Operators
     Assign,
@@ -40,77 +40,86 @@ pub enum Token {
     Return,
 }
 
-impl Display for Token {
+impl Display for TokenType {
     fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
         match self {
-            Token::Illegal => write!(f, "Token::Illegal"),
-            Token::Eof => write!(f, "Token::Eof"),
-            Token::Ident(s) => write!(f, "Token::Ident({s})"),
-            Token::Int(i) => write!(f, "Token::Int({i})"),
-            Token::Assign => write!(f, "Token::Assign"),
-            Token::Plus => write!(f, "Token::Plus"),
-            Token::Minus => write!(f, "Token::Minus"),
-            Token::Bang => write!(f, "Token::Bang"),
-            Token::Asterisk => write!(f, "Token::Asterisk"),
-            Token::Eq => write!(f, "Token::Eq"),
-            Token::NotEq => write!(f, "Token::NotEq"),
-            Token::Comma => write!(f, "Token::Comma"),
-            Token::Semicolon => write!(f, "Token::Semicolon"),
-            Token::Slash => write!(f, "Token::Slash"),
-            Token::LParen => write!(f, "Token::LParen"),
-            Token::RParen => write!(f, "Token::RParen"),
-            Token::LBrace => write!(f, "Token::LBrace"),
-            Token::RBrace => write!(f, "Token::RBrace"),
-            Token::LT => write!(f, "Token::LT"),
-            Token::RT => write!(f, "Token::RT"),
-            Token::Function => write!(f, "Token::Function"),
-            Token::Let => write!(f, "Token::Let"),
-            Token::True => write!(f, "Token::True"),
-            Token::False => write!(f, "Token::False"),
-            Token::If => write!(f, "Token::If"),
-            Token::Else => write!(f, "Token::Else"),
-            Token::Return => write!(f, "Token::Return"),
+            TokenType::Illegal => write!(f, "Token::Illegal"),
+            TokenType::Eof => write!(f, "Token::Eof"),
+            TokenType::Ident => write!(f, "Token::Ident"),
+            TokenType::Int => write!(f, "Token::Int"),
+            TokenType::Assign => write!(f, "Token::Assign"),
+            TokenType::Plus => write!(f, "Token::Plus"),
+            TokenType::Minus => write!(f, "Token::Minus"),
+            TokenType::Bang => write!(f, "Token::Bang"),
+            TokenType::Asterisk => write!(f, "Token::Asterisk"),
+            TokenType::Eq => write!(f, "Token::Eq"),
+            TokenType::NotEq => write!(f, "Token::NotEq"),
+            TokenType::Comma => write!(f, "Token::Comma"),
+            TokenType::Semicolon => write!(f, "Token::Semicolon"),
+            TokenType::Slash => write!(f, "Token::Slash"),
+            TokenType::LParen => write!(f, "Token::LParen"),
+            TokenType::RParen => write!(f, "Token::RParen"),
+            TokenType::LBrace => write!(f, "Token::LBrace"),
+            TokenType::RBrace => write!(f, "Token::RBrace"),
+            TokenType::LT => write!(f, "Token::LT"),
+            TokenType::RT => write!(f, "Token::RT"),
+            TokenType::Function => write!(f, "Token::Function"),
+            TokenType::Let => write!(f, "Token::Let"),
+            TokenType::True => write!(f, "Token::True"),
+            TokenType::False => write!(f, "Token::False"),
+            TokenType::If => write!(f, "Token::If"),
+            TokenType::Else => write!(f, "Token::Else"),
+            TokenType::Return => write!(f, "Token::Return"),
         }
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Token {
+    pub token_type: TokenType,
+    pub literal: String,
+}
+
 impl Token {
-    pub fn literal(&self) -> String {
-        match self {
-            Token::Ident(s) => s.to_string(),
-            Token::Int(i) => i.to_string(),
-            Token::Illegal => "Illegal".to_string(),
-            Token::Eof => "Eof".to_string(),
-            Token::Assign => "=".to_string(),
-            Token::Plus => "+".to_string(),
-            Token::Minus => "-".to_string(),
-            Token::Bang => "!".to_string(),
-            Token::Asterisk => "*".to_string(),
-            Token::Eq => "==".to_string(),
-            Token::NotEq => "!=".to_string(),
-            Token::Comma => ",".to_string(),
-            Token::Semicolon => ";".to_string(),
-            Token::Slash => "/".to_string(),
-            Token::LParen => "(".to_string(),
-            Token::RParen => ")".to_string(),
-            Token::LBrace => "{".to_string(),
-            Token::RBrace => "}".to_string(),
-            Token::LT => "<".to_string(),
-            Token::RT => ">".to_string(),
-            Token::Function => "fn".to_string(),
-            Token::True => "true".to_string(),
-            Token::False => "false".to_string(),
-            Token::If => "if".to_string(),
-            Token::Else => "else".to_string(),
-            Token::Return => "return".to_string(),
-            _ => self.to_string(),
-        }
+    pub fn new(token_type: TokenType, literal: Option<String>) -> Self {
+        let literal: String = literal.unwrap_or(String::new());
+        return Token {
+            token_type,
+            literal,
+        };
     }
-    pub fn type_matches(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Token::Ident(_), Token::Ident(_)) => true,
-            (Token::Int(_), Token::Int(_)) => true,
-            _ => std::mem::discriminant(self) == std::mem::discriminant(other),
+}
+
+impl Display for Token {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
+        match self.token_type {
+            TokenType::Illegal => write!(f, "Token::Illegal"),
+            TokenType::Eof => write!(f, "Token::Eof"),
+            TokenType::Ident => write!(f, "Token::Ident({})", self.literal),
+            TokenType::Int => write!(f, "Token::Int({})", self.literal),
+            TokenType::Assign => write!(f, "Token::Assign"),
+            TokenType::Plus => write!(f, "Token::Plus"),
+            TokenType::Minus => write!(f, "Token::Minus"),
+            TokenType::Bang => write!(f, "Token::Bang"),
+            TokenType::Asterisk => write!(f, "Token::Asterisk"),
+            TokenType::Eq => write!(f, "Token::Eq"),
+            TokenType::NotEq => write!(f, "Token::NotEq"),
+            TokenType::Comma => write!(f, "Token::Comma"),
+            TokenType::Semicolon => write!(f, "Token::Semicolon"),
+            TokenType::Slash => write!(f, "Token::Slash"),
+            TokenType::LParen => write!(f, "Token::LParen"),
+            TokenType::RParen => write!(f, "Token::RParen"),
+            TokenType::LBrace => write!(f, "Token::LBrace"),
+            TokenType::RBrace => write!(f, "Token::RBrace"),
+            TokenType::LT => write!(f, "Token::LT"),
+            TokenType::RT => write!(f, "Token::RT"),
+            TokenType::Function => write!(f, "Token::Function"),
+            TokenType::Let => write!(f, "Token::Let"),
+            TokenType::True => write!(f, "Token::True"),
+            TokenType::False => write!(f, "Token::False"),
+            TokenType::If => write!(f, "Token::If"),
+            TokenType::Else => write!(f, "Token::Else"),
+            TokenType::Return => write!(f, "Token::Return"),
         }
     }
 }
@@ -142,33 +151,34 @@ impl Lexer {
             b'=' => match self.look_ahead_one() {
                 Some(b'=') => {
                     self.read_char();
-                    return Token::Eq;
+                    return Token::new(TokenType::Eq, None);
                 }
-                _ => Token::Assign,
+                _ => Token::new(TokenType::Assign, None),
             },
-            b'+' => Token::Plus,
-            b'-' => Token::Minus,
+            b'+' => Token::new(TokenType::Plus, None),
+            b'-' => Token::new(TokenType::Minus, None),
+
             b'!' => match self.look_ahead_one() {
                 Some(b'=') => {
                     self.read_char();
-                    return Token::NotEq;
+                    return Token::new(TokenType::NotEq, None);
                 }
-                _ => Token::Bang,
+                _ => Token::new(TokenType::Bang, None),
             },
-            b'*' => Token::Asterisk,
-            b',' => Token::Comma,
-            b';' => Token::Semicolon,
-            b'/' => Token::Slash,
-            b'(' => Token::LParen,
-            b')' => Token::RParen,
-            b'{' => Token::LBrace,
-            b'}' => Token::RBrace,
-            b'<' => Token::LT,
-            b'>' => Token::RT,
-            0 => Token::Eof,
+            b'*' => Token::new(TokenType::Asterisk, None),
+            b',' => Token::new(TokenType::Comma, None),
+            b';' => Token::new(TokenType::Semicolon, None),
+            b'/' => Token::new(TokenType::Slash, None),
+            b'(' => Token::new(TokenType::LParen, None),
+            b')' => Token::new(TokenType::RParen, None),
+            b'{' => Token::new(TokenType::LBrace, None),
+            b'}' => Token::new(TokenType::RBrace, None),
+            b'<' => Token::new(TokenType::LT, None),
+            b'>' => Token::new(TokenType::RT, None),
+            0 => Token::new(TokenType::Eof, None),
             _ => {
                 println!("Unknown character: {}", char::from(ch));
-                Token::Illegal
+                Token::new(TokenType::Illegal, None)
             }
         };
         self.read_char();
@@ -195,13 +205,13 @@ impl Lexer {
 
     pub fn get_keyword_token(s: &str) -> Option<Token> {
         let token = match s {
-            "fn" => Token::Function,
-            "let" => Token::Let,
-            "true" => Token::True,
-            "false" => Token::False,
-            "if" => Token::If,
-            "else" => Token::Else,
-            "return" => Token::Return,
+            "fn" => Token::new(TokenType::Function, None),
+            "let" => Token::new(TokenType::Let, None),
+            "true" => Token::new(TokenType::True, None),
+            "false" => Token::new(TokenType::False, None),
+            "if" => Token::new(TokenType::If, None),
+            "else" => Token::new(TokenType::Else, None),
+            "return" => Token::new(TokenType::Return, None),
             _ => return None,
         };
         Some(token)
@@ -228,7 +238,7 @@ impl Lexer {
 
         self.pos -= 1;
         self.read_pos -= 1;
-        Token::Int(number)
+        Token::new(TokenType::Int, Some(number.to_string()))
     }
 
     pub fn read_identifier(&mut self, ch: u8) -> Token {
@@ -249,7 +259,7 @@ impl Lexer {
 
         let token = match Lexer::get_keyword_token(&s) {
             Some(x) => x,
-            _ => Token::Ident(s),
+            _ => Token::new(TokenType::Ident, Some(s)),
         };
 
         self.pos -= 1;

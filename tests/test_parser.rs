@@ -1,6 +1,6 @@
 use ast::expressions::*;
 use ast::statements::*;
-use lexer::{Lexer, Token};
+use lexer::{Lexer, Token, TokenType};
 use parser::Parser;
 use std::fs;
 
@@ -25,13 +25,12 @@ fn parse_let() {
 
     let expected = ProgramStatement {
         body: vec![Box::new(LetStatement {
-            token: Token::Let,
-            name: IdentifierExpression {
-                token: Token::Ident("x".to_string()),
+            token: Token::new(TokenType::Let, None),
+            name: Identifier{
+                token: Token::new(TokenType::Ident, Some("".to_string())),
+                value: "".to_string(),
             },
-            value: Box::new(ExpressionNode {
-                value: "10".to_string(),
-            }),
+            value: None,
         })],
     };
     assert_eq!(parsed_statement, expected);
@@ -44,10 +43,8 @@ fn parse_return() {
 
     let expected = ProgramStatement {
         body: vec![Box::new(ReturnStatement {
-            token: Token::Return,
-            return_value: Box::new(ExpressionNode {
-                value: "10".to_string(),
-            }),
+            token: Token::new(TokenType::Return, None),
+            return_value: None,
         })],
     };
     assert_eq!(parsed_statement, expected);
@@ -60,10 +57,8 @@ fn parse_identifier_token() {
 
     let expected = ProgramStatement {
         body: vec![Box::new(ExpressionStatement {
-            token: Token::Ident("test_identifier".to_string()),
-            expression: Box::new(ExpressionNode {
-                value: "test_identifier".to_string(),
-            }),
+            token: Token::new(TokenType::Ident, Some("test_identifier".to_string())),
+            expression: None,
         })],
     };
 

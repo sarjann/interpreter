@@ -1,6 +1,6 @@
 use crate::ast::{Expression, Node, Statement};
 use crate::expressions;
-use lexer::Token;
+use lexer::{Token, TokenType};
 use std::cmp::{Eq, Ordering, PartialEq, PartialOrd};
 
 // Program
@@ -16,7 +16,7 @@ impl PartialEq for ProgramStatement {
 }
 
 impl Node for ProgramStatement {
-    fn literal(&self) -> String {
+    fn token_literal(&self) -> String {
         return format!("[{}]", "Program".to_string());
     }
 }
@@ -28,18 +28,13 @@ impl Statement for ProgramStatement {
 #[derive(Debug)]
 pub struct LetStatement {
     pub token: Token,
-    pub name: expressions::IdentifierExpression,
-    pub value: Box<dyn Expression>,
+    pub name: expressions::Identifier,
+    pub value: Option<Box<dyn Expression>>,
 }
 
 impl Node for LetStatement {
-    fn literal(&self) -> String {
-        return format!(
-            "{} {} = {}",
-            self.token.literal(),
-            self.name.literal(),
-            self.value.literal()
-        );
+    fn token_literal(&self) -> String {
+        return format!("{}", self.token);
     }
 }
 impl Statement for LetStatement {
@@ -50,14 +45,15 @@ impl Statement for LetStatement {
 #[derive(Debug)]
 pub struct ReturnStatement {
     pub token: Token,
-    pub return_value: Box<dyn Expression>,
+    pub return_value: Option<Box<dyn Expression>>,
 }
 
 impl Node for ReturnStatement {
-    fn literal(&self) -> String {
-        return format!("{} : {}", self.token.literal(), self.return_value.literal());
+    fn token_literal(&self) -> String {
+        return format!("{}", self.token);
     }
 }
+
 impl Statement for ReturnStatement {
     fn statement_node(&self) {}
 }
@@ -66,12 +62,12 @@ impl Statement for ReturnStatement {
 #[derive(Debug)]
 pub struct ExpressionStatement {
     pub token: Token,
-    pub expression: Box<dyn Expression>,
+    pub expression: Option<Box<dyn Expression>>,
 }
 
 impl Node for ExpressionStatement {
-    fn literal(&self) -> String {
-        return format!("{} : {}", self.token.literal(), self.expression.literal());
+    fn token_literal(&self) -> String {
+        return format!("{}", self.token);
     }
 }
 impl Statement for ExpressionStatement {

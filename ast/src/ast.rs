@@ -1,12 +1,14 @@
 use std::fmt::{Debug, Display, Formatter};
 
 pub trait Node: Debug {
-    fn literal(&self) -> String;
+    fn token_literal(&self) -> String {
+        return format!("[{}]", "Program".to_string());
+    }
 }
 
 impl PartialEq for dyn Node {
     fn eq(&self, other: &Self) -> bool {
-        self.literal() == other.literal()
+        self.token_literal() == other.token_literal()
     }
 }
 
@@ -16,7 +18,7 @@ pub trait Statement: Node + Debug {
 
 impl PartialEq for dyn Statement {
     fn eq(&self, other: &Self) -> bool {
-        self.literal() == other.literal()
+        self.token_literal() == other.token_literal()
     }
 }
 
@@ -26,6 +28,6 @@ pub trait Expression: Node + Debug {
 
 impl PartialEq for dyn Expression {
     fn eq(&self, other: &Self) -> bool {
-        self.literal() == other.literal()
+        self.token_literal() == other.token_literal()
     }
 }
