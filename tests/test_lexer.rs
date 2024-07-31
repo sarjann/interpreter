@@ -1,16 +1,15 @@
-use lexer::{Lexer, Token};
-use std::fs;
+use lexer::{Lexer, Token, TokenType};
 
 #[test]
 fn tokenise() {
-    let v: Vec<u8> = fs::read("tests/test_files/let.lang").expect("Couldn't open file");
+    let v: Vec<u8> = "let x = 10;".bytes().collect();
     let expected = vec![
-        Token::Let,
-        Token::Ident("x".to_string()),
-        Token::Assign,
-        Token::Int(10),
-        Token::Semicolon,
-        Token::Eof,
+        Token::new(TokenType::Let, None),
+        Token::new(TokenType::Ident, Some("x".to_string())),
+        Token::new(TokenType::Assign, None),
+        Token::new(TokenType::Int, Some("10".to_string())),
+        Token::new(TokenType::Semicolon, None),
+        Token::new(TokenType::Eof, None),
     ];
 
     let mut lex = Lexer::new(v);
@@ -18,5 +17,5 @@ fn tokenise() {
         let token = lex.next_token();
         assert_eq!(token, expected_token.clone());
     }
-    assert_eq!(lex.next_token(), Token::Eof);
+    assert_eq!(lex.next_token().token_type, TokenType::Eof);
 }

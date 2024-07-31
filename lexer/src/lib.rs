@@ -82,7 +82,18 @@ pub struct Token {
 
 impl Token {
     pub fn new(token_type: TokenType, literal: Option<String>) -> Self {
-        let literal: String = literal.unwrap_or(String::new());
+        let literal: String = match token_type {
+            TokenType::Bang => "!".to_string(),
+            TokenType::Minus => "-".to_string(),
+            TokenType::Plus => "+".to_string(),
+            TokenType::Slash => "/".to_string(),
+            TokenType::Asterisk => "*".to_string(),
+            TokenType::Eq => "==".to_string(),
+            TokenType::NotEq => "!=".to_string(),
+            TokenType::LT => "<".to_string(),
+            TokenType::RT => ">".to_string(),
+            _ => literal.unwrap_or(String::new()),
+        };
         return Token {
             token_type,
             literal,
@@ -148,22 +159,25 @@ impl Lexer {
         let token = match ch {
             b'a'..=b'z' | b'A'..=b'Z' => self.read_identifier(ch),
             b'0'..=b'9' => self.read_number(ch),
-            b'=' => match self.look_ahead_one() {
-                Some(b'=') => {
+            b'=' => match self.read_head_value() {
+                b'=' => {
                     self.read_char();
-                    return Token::new(TokenType::Eq, None);
+                    Token::new(TokenType::Eq, None)
                 }
-                _ => Token::new(TokenType::Assign, None),
+                _ => {
+                    Token::new(TokenType::Assign, None)
+                }
             },
             b'+' => Token::new(TokenType::Plus, None),
             b'-' => Token::new(TokenType::Minus, None),
-
-            b'!' => match self.look_ahead_one() {
-                Some(b'=') => {
+            b'!' => match self.read_head_value() {
+                b'=' => {
                     self.read_char();
-                    return Token::new(TokenType::NotEq, None);
+                    Token::new(TokenType::NotEq, None)
                 }
-                _ => Token::new(TokenType::Bang, None),
+                _ => {
+                    Token::new(TokenType::Bang, None)
+                }
             },
             b'*' => Token::new(TokenType::Asterisk, None),
             b',' => Token::new(TokenType::Comma, None),
@@ -185,12 +199,12 @@ impl Lexer {
         token
     }
 
-    pub fn look_ahead_one(&self) -> Option<u8> {
-        let look_ahead_pos = self.read_pos + 1;
+    pub fn read_head_value(&self) -> u8 {
+        let look_ahead_pos = self.read_pos;
         if look_ahead_pos >= self.input.len() {
-            None
+            0
         } else {
-            Some(self.input[look_ahead_pos])
+            self.input[look_ahead_pos]
         }
     }
 
@@ -233,7 +247,7 @@ impl Lexer {
 
         let mut number = 0;
         for c in us {
-            number = number * 10 + (c - b'0') as i32;
+            number = number * 10 + (c - b'0') as i64;
         }
 
         self.pos -= 1;
