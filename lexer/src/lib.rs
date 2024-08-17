@@ -164,9 +164,7 @@ impl Lexer {
                     self.read_char();
                     Token::new(TokenType::Eq, None)
                 }
-                _ => {
-                    Token::new(TokenType::Assign, None)
-                }
+                _ => Token::new(TokenType::Assign, None),
             },
             b'+' => Token::new(TokenType::Plus, None),
             b'-' => Token::new(TokenType::Minus, None),
@@ -175,9 +173,7 @@ impl Lexer {
                     self.read_char();
                     Token::new(TokenType::NotEq, None)
                 }
-                _ => {
-                    Token::new(TokenType::Bang, None)
-                }
+                _ => Token::new(TokenType::Bang, None),
             },
             b'*' => Token::new(TokenType::Asterisk, None),
             b',' => Token::new(TokenType::Comma, None),

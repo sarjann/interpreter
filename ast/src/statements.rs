@@ -73,3 +73,19 @@ impl Node for ExpressionStatement {
 impl Statement for ExpressionStatement {
     fn statement_node(&self) {}
 }
+
+// BlockStatement
+#[derive(Debug)]
+pub struct BlockStatement {
+    pub token: Token,
+    pub statements: Vec<Option<Box<dyn Statement>>>,
+}
+
+impl Node for BlockStatement {
+    fn token_literal(&self) -> String {
+        return format!("{}", self.token);
+    }
+}
+impl Statement for BlockStatement {
+    fn statement_node(&self) {}
+}

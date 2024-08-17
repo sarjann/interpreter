@@ -212,3 +212,47 @@ fn parse_infix_expression() {
         assert_eq!(parsed_statement, expected);
     }
 }
+
+#[test]
+fn parse_prefix_bool() {
+    struct TestInput {
+        input: String,
+        token: Token,
+        value: bool,
+    }
+    let test_inputs: Vec<TestInput> = vec![
+        TestInput {
+            input: "true".to_string(),
+            token: Token::new(TokenType::True, None),
+            value: true,
+        },
+        TestInput {
+            input: "false".to_string(),
+            token: Token::new(TokenType::False, None),
+            value: false,
+        },
+    ];
+
+    for test_input in test_inputs.iter() {
+        let mut parser = string_to_parser(&test_input.input);
+        let parsed_statement = parser.parse();
+
+        let expected = statements::ProgramStatement {
+            body: vec![Box::new(statements::ExpressionStatement {
+                token: test_input.token.clone(),
+                expression: Some(Box::new(expressions::Bool {
+                    token: test_input.token.clone(),
+                    value: test_input.value,
+                })),
+            })],
+        };
+        if parser.errors.len() > 0 {
+            dbg!("Errors:");
+            for err in parser.errors.iter() {
+                dbg!("{}", err);
+            }
+            panic!("Failed")
+        }
+        assert_eq!(parsed_statement, expected);
+    }
+}
