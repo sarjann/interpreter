@@ -7,3 +7,4 @@ edition = "2021"
 lexer = { path = "lexer" }
 parser = { path = "parser" }
 ast = { path = "ast" }
+evaluator = { path = "evaluator" }

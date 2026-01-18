@@ -1,5 +1,6 @@
-use lexer::{Lexer, Token};
-use ast::AST;
+use evaluator::{eval, Environment};
+use lexer::Lexer;
+use parser::Parser;
 use std::fs;
 
 fn main() {
@@ -11,14 +12,19 @@ fn main() {
     // let input_string = "let x = 5 + 5;".to_string();
     let input_bytes = input_string.into_bytes();
 
+    let lexer = Lexer::new(input_bytes);
+    let mut parser = Parser::new(lexer);
+    let program = parser.parse();
 
-    let mut lexer = Lexer::new(input_bytes);
-    loop {
-        let token = lexer.next_token();
-        print!("{}  ", token);
-        match token {
-            Token::Eof => break,
-            _ => (),
+    if !parser.errors.is_empty() {
+        eprintln!("Parser errors:");
+        for error in parser.errors.iter() {
+            eprintln!(" - {}", error);
         }
+        return;
     }
+
+    let env = Environment::new();
+    let evaluated = eval(&program, env);
+    println!("{}", evaluated);
 }

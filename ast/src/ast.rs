@@ -1,6 +1,22 @@
-use std::fmt::{Debug, Display, Formatter};
+use std::any::Any;
+use std::fmt::Debug;
 
-pub trait Node: Debug {
+pub trait AsAny {
+    fn as_any(&self) -> &dyn Any;
+    fn into_any(self: Box<Self>) -> Box<dyn Any>;
+}
+
+impl<T: Any> AsAny for T {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
+    }
+}
+
+pub trait Node: Debug + AsAny {
     fn token_literal(&self) -> String {
         return format!("[{}]", "Program".to_string());
     }

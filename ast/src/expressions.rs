@@ -1,6 +1,7 @@
 use crate::ast::{Expression, Node};
 use crate::statements;
 use lexer::Token;
+use std::rc::Rc;
 
 // Identifier
 #[derive(Debug)]
@@ -89,7 +90,7 @@ impl Expression for If {
 pub struct FunctionLiteral {
     pub token: Token,
     pub parameters: Option<Vec<Identifier>>,
-    pub body: Option<statements::BlockStatement>,
+    pub body: Option<Rc<statements::BlockStatement>>,
 }
 
 impl Node for FunctionLiteral {

@@ -1,7 +1,6 @@
 use crate::ast::{Expression, Node, Statement};
 use crate::expressions;
-use lexer::{Token, TokenType};
-use std::cmp::{Eq, Ordering, PartialEq, PartialOrd};
+use lexer::Token;
 
 // Program
 #[derive(Debug)]

@@ -2,6 +2,7 @@ use ast::ast::{Expression, Statement};
 use ast::{expressions, statements};
 use lexer::{Lexer, Token, TokenType};
 use std::collections::HashMap;
+use std::rc::Rc;
 // use std::fmt::{Debug, Display, Formatter};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -138,11 +139,11 @@ impl Parser {
         if !parser.expect_peek(TokenType::LBrace) {
             return None;
         }
-        parser.next_token();
         let first = parser.parse_block_statement();
         expression.first = first;
 
-        if parser.expect_peek(TokenType::Else) {
+        if matches!(parser.peek_token.token_type, TokenType::Else) {
+            parser.next_token();
             if !parser.expect_peek(TokenType::LBrace) {
                 return None;
             }
@@ -172,22 +173,33 @@ impl Parser {
         }
 
         let body = parser.parse_block_statement();
-        expression.body = body;
+        expression.body = body.map(Rc::new);
 
         return Some(Box::new(expression));
     }
 
     fn parse_function_params(&mut self) -> Option<Vec<expressions::Identifier>> {
         let mut identifiers: Vec<expressions::Identifier> = vec![];
-        while self.expect_peek(TokenType::Ident) {
+        if matches!(self.peek_token.token_type, TokenType::RParen) {
+            self.next_token();
+            return Some(identifiers);
+        }
+
+        self.next_token();
+        let identifier = expressions::Identifier {
+            token: self.current_token.clone(),
+            value: self.current_token.literal.clone(),
+        };
+        identifiers.push(identifier);
+
+        while matches!(self.peek_token.token_type, TokenType::Comma) {
+            self.next_token();
+            self.next_token();
             let identifier = expressions::Identifier {
-                token: Token::new(TokenType::Ident, Some(self.peek_token.literal.clone())),
-                value: self.peek_token.literal.clone(),
+                token: self.current_token.clone(),
+                value: self.current_token.literal.clone(),
             };
             identifiers.push(identifier);
-            if !self.expect_peek(TokenType::Comma) {
-                break;
-            }
         }
 
         if !self.expect_peek(TokenType::RParen) {
@@ -328,12 +340,6 @@ impl Parser {
             self.next_token();
         }
 
-        // Printing output
-        dbg!(&bs.body);
-        if self.errors.len() > 0 {
-            dbg!(&self.errors);
-        }
-
         return bs;
     }
 
@@ -440,7 +446,7 @@ impl Parser {
 
         self.next_token();
 
-        if !matches!(self.current_token.token_type, TokenType::RBrace)
+        while !matches!(self.current_token.token_type, TokenType::RBrace)
             && !matches!(self.current_token.token_type, TokenType::Eof)
         {
             let statement = self.parse_statement();
